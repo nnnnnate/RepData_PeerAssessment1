@@ -7,33 +7,38 @@ output:
     keep_md: yes
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 #### Dataset and packages are loaded 
 
-```{r loadDataPack}
+
+```r
 acts <- read.csv("activity.csv")
 library(ggplot2)
 ```
 
 ### Total number of steps taken per day is shown below
 
-```{r sumPerDay, results='hide', fig.height=4}
+
+```r
 sumByDay <- tapply(acts$steps, acts$date, sum, na.rm = TRUE)
 g1 <- ggplot(as.data.frame(sumByDay), aes(x = sumByDay)) 
 g1 + geom_histogram(color = "white",fill= "lightblue", bins = 9) + scale_x_continuous(breaks = seq(0,22500, 2500)) + labs(x = "Daily Total Steps", y = "Counts") 
+```
 
+![](PA1_template_files/figure-html/sumPerDay-1.png)<!-- -->
+
+```r
 m1 <- mean(sumByDay)
 m2 <- median(sumByDay)
 ```
 
-#### The mean of total number of steps taken per day is `r m1` steps, and its median is `r m2` steps.
+#### The mean of total number of steps taken per day is 9354.2295082 steps, and its median is 10395 steps.
 
 ### Average daily activity pattern is shown below
 
-```{r, results='hide'}
+
+```r
 meanByInterval <- tapply(acts$steps, acts$interval, mean, na.rm = TRUE)
 meanByInterval <- cbind(unique(acts$interval), meanByInterval)
 colnames(meanByInterval) <- c("interval", "mean")
@@ -42,22 +47,27 @@ g2 <- ggplot(meanByInterval, aes(x = interval, y = mean))
 g2 + geom_line(color = "darkred") + scale_x_continuous(breaks =seq(0,2500,250)) +labs(y = "avergae steps")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-1-1.png)<!-- -->
 
-```{r}
+
+
+```r
 maxStep <- meanByInterval[which.max(meanByInterval[,2]),1]
 ```
-#### During the `r maxStep` interval, on average across all the days in the dataset, contains the maximum number of steps.
+#### During the 835 interval, on average across all the days in the dataset, contains the maximum number of steps.
 
 
 ### Next, the number of missing values(NAs) in the dataset is calculated, and then they are imputed with the mean for that 5-minute interval.
 
-```{r results='hide'}
+
+```r
 numNA <- sum(is.na(acts$steps))
 ```
-#### There are `r numNA` missing values in this dataset!
+#### There are 2304 missing values in this dataset!
 
 The following code shows howthe NAs in the dataset are replaced with the 5-min interval mean value.
-```{r impute}
+
+```r
 acts2 <- acts     # create a new df, whose NAs will be imputed
 for (i in 1:nrow(acts2)) {
     if (is.na(acts2[i,1])) {
@@ -70,20 +80,25 @@ for (i in 1:nrow(acts2)) {
 
 Total number of steps taken per day is shown below
 
-```{r, results='hide'}
 
+```r
 sumByDay2 <- tapply(acts2$steps, acts2$date, sum)
 g1 <- ggplot(as.data.frame(sumByDay2), aes(x = sumByDay2)) 
 g1 + geom_histogram(color = "white",fill= "lightgreen", bins = 9) + scale_x_continuous(breaks = seq(0,22500, 2500)) + labs(x = "Daily Total Steps", y = "Counts") 
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
+```r
 m3 <- mean(sumByDay2)
 m4 <- median(sumByDay2)
 ```
-#### The mean of total number of steps taken per day is `r m3` steps, and its median is `r m4` steps.
+#### The mean of total number of steps taken per day is 1.0766189\times 10^{4} steps, and its median is 1.0766189\times 10^{4} steps.
 
 ### Differences in activity patterns between weekdays and weekends are explored below.
 
-```{r results='hide'}
+
+```r
 # create a col in the dataframe, showing whether it's weekday or weekend
 acts2$date <- as.Date(acts2$date)
 acts2$weekday <- weekdays(acts2$date) 
@@ -124,6 +139,8 @@ meanByInterval2 <- rbind(meanByIntervalWeekday, meanByIntervalWeekend)
 g3 <- ggplot(meanByInterval2, aes(x = interval, y = meanByInterval))
 g3 + geom_line(color = "darkblue") + scale_x_continuous(breaks =seq(0,2500,250)) +labs(y = "avergae steps") + facet_grid(weekday~.)
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
 
 
